@@ -1,0 +1,64 @@
+﻿# Default ignored files
+/shelf/
+/workspace.xml
+/Content/Imports/
+# Rider ignored files
+/modules.xml
+/projectSettingsUpdater.xml
+/.idea.InTheShadows.iml
+/contentModel.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+# Unreal Engine 5 specific ignores
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+# Build Output
+[Bb]uild/
+[Bb]uilds/
+# Visual Studio cache/options directory
+.vs/
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+# Precompiled Headers
+*.gch
+*.pch
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+# Fortran module files
+*.mod
+*.smod
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+# Executables
+*.exe
+*.out
+*.app
+/.vscode/
+*.vscode*
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+# OS generated files (Mac)
+.DS_Store
+.AppleDouble
+.LSOverride
+# Thumbnail cache files
+._*
+Thumbs.db
+ehthumbs.db
+# JetBrains Rider
+.idea/
