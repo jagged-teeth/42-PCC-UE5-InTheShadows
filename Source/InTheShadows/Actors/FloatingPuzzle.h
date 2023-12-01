@@ -8,7 +8,6 @@
 #include "InTheShadows/Interfaces/InteractionInterface.h"
 #include "FloatingPuzzle.generated.h"
 
-struct FInputActionValue;
 class USphereComponent;
 class UStaticMeshComponent;
 class URotatingMovementComponent;
@@ -24,9 +23,6 @@ public:
 	AFloatingPuzzle();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Set puzzle control active
-	void SetPuzzleControlActive(bool bIsActive);
 
 protected:
 	// Called when the game starts or when spawned
@@ -75,7 +71,4 @@ protected:
 private:
 	bool bIsFloating = false;
 	float StartLocation;
-	bool bIsControlledByPlayer = false;
-
-	// void RotatePuzzle(FInputActionValue &Value);
 };

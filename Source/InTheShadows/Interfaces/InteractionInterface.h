@@ -12,6 +12,7 @@ UENUM()
 enum class EInteractableType : uint8
 {
 	Instant UMETA(DisplayName = "Instant"),
+	Puzzle UMETA(DisplayName = "Puzzle"),
 	Progress UMETA(DisplayName = "Progress")
 };
 

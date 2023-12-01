@@ -13,7 +13,7 @@ class UInputAction;
 class UStaticMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
-class AFloatingPuzzle;
+class APuzzlePawn;
 class APlayerHUD;
 
 USTRUCT()
@@ -86,6 +86,9 @@ protected:
 	void EndInteract();
 	void Interact();
 
+	void ControlPuzzle();
+	void StopControllingPuzzle();
+
 private:
 	// Mesh being displayed
 	UPROPERTY(EditDefaultsOnly)
@@ -98,4 +101,7 @@ private:
 	// Camera to view the scene
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
+
+	APuzzlePawn* ControlledPuzzle = nullptr;
+
 };

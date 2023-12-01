@@ -2,6 +2,7 @@
 
 
 #include "PlayerCharacter.h"
+#include "InTheShadows/Pawns/PuzzlePawn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
@@ -172,6 +173,34 @@ void APlayerCharacter::Interact()
 
 	if (IsValid(TargetInteractable.GetObject()))
 		TargetInteractable->Interact(this);
+	if (IsValid(TargetInteractable.GetObject()) && TargetInteractable->InteractableData.InteractableType ==
+		EInteractableType::Puzzle)
+		ControlPuzzle();
+}
+
+void APlayerCharacter::ControlPuzzle()
+{
+	if (APuzzlePawn* Puzzle = Cast<APuzzlePawn>(InteractionData.CurrentInteractable))
+	{
+		if (AController* PlayerController = GetController())
+		{
+			PlayerController->Possess(Puzzle);
+			UE_LOG(LogTemp, Warning, TEXT("Possessing FloatingPuzzle"));
+		}
+	}
+}
+
+void APlayerCharacter::StopControllingPuzzle()
+{
+	if (AController* PlayerController = GetController())
+	{
+		if (PlayerController && ControlledPuzzle)
+		{
+			PlayerController->UnPossess();
+			PlayerController->Possess(this);
+			UE_LOG(LogTemp, Warning, TEXT("UnPossessing FloatingPuzzle"));
+		}
+	}
 }
 
 // Movement
@@ -218,5 +247,4 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this,
 		                                   &APlayerCharacter::EndInteract);
 	}
-	
 }

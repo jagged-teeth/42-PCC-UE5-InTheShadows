@@ -89,26 +89,3 @@ void AFloatingPuzzle::Interact(APlayerCharacter* PC)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Calling Interact override on FloatingPuzzle actor"));
 }
-
-void AFloatingPuzzle::SetPuzzleControlActive(bool bIsActive)
-{
-	if (bIsActive)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Setting PuzzleControlActive to true"));
-		bIsControlledByPlayer = true;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Setting PuzzleControlActive to false"));
-		bIsControlledByPlayer = false;
-	}
-}
-
-// void AFloatingPuzzle::RotatePuzzle(FInputActionValue& Value)
-// {
-// 	if (bIsControlledByPlayer)
-// 	{
-// 		UE_LOG(LogTemp, Warning, TEXT("Rotating Puzzle"));
-// 		
-// 	}
-// }
