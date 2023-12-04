@@ -9,6 +9,7 @@
 // Sets default values
 AFloatingPuzzle::AFloatingPuzzle()
 {
+	// Initialize components
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("PuzzleMesh");
 	RootComponent = StaticMesh;
 

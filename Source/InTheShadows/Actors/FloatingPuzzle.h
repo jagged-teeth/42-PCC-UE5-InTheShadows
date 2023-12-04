@@ -29,7 +29,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Components
-	UPROPERTY(VisibleInstanceOnly, Category = "Interactable")
+	UPROPERTY(EditInstanceOnly, Category = "Interactable")
 	FInteractableData InstanceInteractableData;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)

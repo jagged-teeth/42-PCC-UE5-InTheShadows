@@ -64,10 +64,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
 	UInputAction* LookAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
+	UInputAction* RotateAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
 	UInputAction* InteractAction;
-
+	
 	UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
 	TScriptInterface<IInteractionInterface> TargetInteractable;
 
@@ -78,6 +81,7 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Rotate(const FInputActionValue& Value);
 
 	void PerformInteractionCheck();
 	void FoundInteractable(AActor* NewInteractable);
@@ -86,9 +90,9 @@ protected:
 	void EndInteract();
 	void Interact();
 
-	void ControlPuzzle();
-	void StopControllingPuzzle();
-
+	void ControlPuzzle(APuzzlePawn* PuzzlePawn);
+	// void StopControllingPuzzle();
+	
 private:
 	// Mesh being displayed
 	UPROPERTY(EditDefaultsOnly)
@@ -101,7 +105,4 @@ private:
 	// Camera to view the scene
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-
-	APuzzlePawn* ControlledPuzzle = nullptr;
-
 };

@@ -51,7 +51,7 @@ void APlayerCharacter::BeginPlay()
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
 			UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 		{
-			Subsystem->AddMappingContext(BaseMappingContext, 0);
+			Subsystem->AddMappingContext(BaseMappingContext, 1);
 		}
 	}
 }
@@ -119,9 +119,7 @@ void APlayerCharacter::FoundInteractable(AActor* NewInteractable)
 void APlayerCharacter::LostInteractable()
 {
 	if (IsInteracting())
-	{
 		GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
-	}
 
 	if (InteractionData.CurrentInteractable)
 	{
@@ -172,33 +170,29 @@ void APlayerCharacter::Interact()
 	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
 
 	if (IsValid(TargetInteractable.GetObject()))
-		TargetInteractable->Interact(this);
-	if (IsValid(TargetInteractable.GetObject()) && TargetInteractable->InteractableData.InteractableType ==
-		EInteractableType::Puzzle)
-		ControlPuzzle();
-}
-
-void APlayerCharacter::ControlPuzzle()
-{
-	if (APuzzlePawn* Puzzle = Cast<APuzzlePawn>(InteractionData.CurrentInteractable))
 	{
-		if (AController* PlayerController = GetController())
+		if (TargetInteractable->InteractableData.InteractableType == EInteractableType::Instant)
 		{
-			PlayerController->Possess(Puzzle);
-			UE_LOG(LogTemp, Warning, TEXT("Possessing FloatingPuzzle"));
+			TargetInteractable->Interact(this);
+			UE_LOG(LogTemp, Warning, TEXT("Interacting with Instant Object"));
+		}
+		else if (TargetInteractable->InteractableData.InteractableType == EInteractableType::Puzzle)
+		{
+			if (APuzzlePawn* PuzzlePawn = Cast<APuzzlePawn>(InteractionData.CurrentInteractable))
+				ControlPuzzle(PuzzlePawn);
 		}
 	}
 }
 
-void APlayerCharacter::StopControllingPuzzle()
+
+void APlayerCharacter::ControlPuzzle(APuzzlePawn* PuzzlePawn)
 {
-	if (AController* PlayerController = GetController())
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		if (PlayerController && ControlledPuzzle)
+		if (PC && PuzzlePawn)
 		{
-			PlayerController->UnPossess();
-			PlayerController->Possess(this);
-			UE_LOG(LogTemp, Warning, TEXT("UnPossessing FloatingPuzzle"));
+			PC->UnPossess();
+			PC->Possess(PuzzlePawn);
 		}
 	}
 }
@@ -224,15 +218,35 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+void APlayerCharacter::Rotate(const FInputActionValue& Value)
+{
+	const FVector2D LookAxisValue = Value.Get<FVector2D>();
+	if (PlayerMesh)
+	{
+		// Determine the rotation amount, you might want to multiply these by a rotation speed factor
+		float DeltaYaw = LookAxisValue.X;
+		float DeltaPitch = LookAxisValue.Y;
+
+		// Get the current rotation
+		FRotator CurrentRotation = PlayerMesh->GetRelativeRotation();
+
+		// Modify the rotation based on the input
+		CurrentRotation.Yaw += DeltaYaw;
+		CurrentRotation.Pitch += DeltaPitch;
+
+		// Set the new rotation
+		PlayerMesh->SetRelativeRotation(CurrentRotation);
+	}
+}
+
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 	// Bind input
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<
+		UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		// Movement
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
@@ -240,10 +254,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		// Look
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 
+		// Rotate
+		EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Rotate);
+		
 		// Interact
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this,
 		                                   &APlayerCharacter::BeginInteract);
-
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this,
 		                                   &APlayerCharacter::EndInteract);
 	}

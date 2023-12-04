@@ -31,9 +31,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Set puzzle control active
-	void SetPuzzleControlActive(bool bIsActive);
-	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -42,7 +39,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Components
-	UPROPERTY(VisibleInstanceOnly, Category = "Interactable")
+	UPROPERTY(EditInstanceOnly, Category = "Interactable")
 	FInteractableData InstanceInteractableData;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
@@ -70,26 +67,26 @@ protected:
 	void HandleFloatingTimelineProgress(float Value);
 
 	// Interface Override
-	UFUNCTION(BlueprintCallable)
 	virtual void BeginFocus() override;
-	UFUNCTION(BlueprintCallable)
 	virtual void EndFocus() override;
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginInteract() override;
-	UFUNCTION(BlueprintCallable)
-	virtual void EndInteract() override;
-	UFUNCTION(BlueprintCallable)
 	virtual void Interact(APlayerCharacter* PC) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
+	UInputAction* LookAction;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* MoveAction;
-
-	void Move(const FInputActionValue &Value);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
+	UInputAction* RotateAction;
+	
+	void Look(const FInputActionValue& Value);
+	void Rotate(const FInputActionValue& Value);
 
 private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* PuzzleCamera;
+
 	bool bIsFloating = false;
 	float StartLocation;
-	bool bIsControlledByPlayer = false;
-	
+
+	UPROPERTY()
+	float RotationSpeed = 100.f;
 };

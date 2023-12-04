@@ -4,6 +4,7 @@
 #include "PuzzlePawn.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "Gameframework/RotatingMovementComponent.h"
@@ -11,8 +12,15 @@
 // Sets default values
 APuzzlePawn::APuzzlePawn()
 {
+	// Initialize components
+	USceneComponent* RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	RootComponent = RootSceneComponent;
+
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("PuzzleMesh");
-	RootComponent = StaticMesh;
+	StaticMesh->SetupAttachment(RootComponent);
+
+	PuzzleCamera = CreateDefaultSubobject<UCameraComponent>("Camera");
+	PuzzleCamera->SetupAttachment(RootComponent);
 
 	SphereCollider = CreateDefaultSubobject<USphereComponent>("Sphere");
 	SphereCollider->SetupAttachment(RootComponent);
@@ -75,47 +83,42 @@ void APuzzlePawn::EndFocus()
 		EndInteract();
 }
 
-void APuzzlePawn::BeginInteract()
-{
-	IsInteracting = true;
-	UE_LOG(LogTemp, Warning, TEXT("Calling BeginInteract override on Puzzle Pawn"));
-}
-
-void APuzzlePawn::EndInteract()
-{
-	IsInteracting = false;
-	UE_LOG(LogTemp, Warning, TEXT("Calling EndInteract override on Puzzle Pawn"));
-}
-
 void APuzzlePawn::Interact(APlayerCharacter* PC)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Calling Interact override on Puzzle Pawn"));
-	SetPuzzleControlActive(true);
 }
 
-void APuzzlePawn::SetPuzzleControlActive(bool bIsActive)
+void APuzzlePawn::Look(const FInputActionValue& Value)
 {
-	if (bIsActive)
+	const FVector2D LookAxisValue = Value.Get<FVector2D>();
+	if (GetController())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Setting PuzzleControlActive to true"));
-		bIsControlledByPlayer = true;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Setting PuzzleControlActive to false"));
-		bIsControlledByPlayer = false;
+		AddControllerYawInput(LookAxisValue.X);
+		AddControllerPitchInput(LookAxisValue.Y);
 	}
 }
 
-void APuzzlePawn::Move(const FInputActionValue& Value)
+void APuzzlePawn::Rotate(const FInputActionValue& Value)
 {
-	const FVector2D MoveAxisValue = Value.Get<FVector2D>();
-	if (GetController() && !MoveAxisValue.IsZero())
+	const FVector2D LookAxisValue = Value.Get<FVector2D>();
+	if (StaticMesh)
 	{
-		AddMovementInput(GetActorForwardVector(), MoveAxisValue.Y);
-		AddMovementInput(GetActorRightVector(), MoveAxisValue.X);
+		// Determine the rotation amount, you might want to multiply these by a rotation speed factor
+		float DeltaYaw = LookAxisValue.X;
+		float DeltaPitch = LookAxisValue.Y;
+
+		// Get the current rotation
+		FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
+
+		// Modify the rotation based on the input
+		CurrentRotation.Yaw += DeltaYaw;
+		CurrentRotation.Pitch += DeltaPitch;
+
+		// Set the new rotation
+		StaticMesh->SetRelativeRotation(CurrentRotation);
 	}
 }
+
 
 // Called to bind functionality to input
 void APuzzlePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -124,7 +127,10 @@ void APuzzlePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		// Movement
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Move);
+		// Rotate
+		EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Rotate);
+
+		// Look
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Look);
 	}
 }

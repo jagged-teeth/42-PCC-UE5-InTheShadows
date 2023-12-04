@@ -23,7 +23,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "TestActor")
 	UStaticMeshComponent* Mesh;
 
-	UPROPERTY(EditInstanceOnly, Category = "TestActor")
+	UPROPERTY(EditInstanceOnly, Category = "Interactable")
 	FInteractableData InstanceInteractableData;
 
 	// Called when the game starts or when spawned
