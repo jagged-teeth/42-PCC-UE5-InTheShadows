@@ -46,8 +46,3 @@ float UInteractionWidget::UpdateInteractionProgress()
 {
 	return 0.f;
 }
-
-void UInteractionWidget::ShowProgressBar() const
-{
-	InteractionProgressBar->SetVisibility(ESlateVisibility::Visible);
-}

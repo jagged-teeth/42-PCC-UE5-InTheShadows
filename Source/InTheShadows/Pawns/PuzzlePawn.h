@@ -32,6 +32,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void SetPlayerRef(APlayerCharacter* Player) { PlayerRef = Player;};
+	virtual void EndFocus() override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -61,7 +63,6 @@ protected:
 
 	// Interface Override
 	virtual void BeginFocus() override;
-	virtual void EndFocus() override;
 	virtual void BeginInteract() override;
 	virtual void EndInteract() override;
 	virtual void Interact(APlayerCharacter* PC) override;
@@ -83,9 +84,6 @@ private:
 	UPROPERTY()
 	APlayerCharacter *PlayerRef;
 
-	UPROPERTY(VisibleInstanceOnly)
-	APlayerHUD* PlayerHUD = nullptr;
-	
 	bool bIsFloating = false;
 	float StartLocation;
 

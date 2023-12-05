@@ -73,7 +73,7 @@ void APlayerCharacter::PerformInteractionCheck()
 	FVector TraceEnd{TraceStart + GetViewRotation().Vector() * InteractionCheckDistance};
 	float TraceRadius = 50.f;
 
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f);
+	// DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f);
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
@@ -147,6 +147,11 @@ void APlayerCharacter::BeginInteract()
 
 			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f)) // Tweak this
 				Interact();
+			else if (TargetInteractable->InteractableData.InteractableType == EInteractableType::Puzzle)
+				GetWorldTimerManager().SetTimer(TimerHandle_Interaction,
+				                                this, &APlayerCharacter::Interact,
+				                                TargetInteractable->InteractableData.InteractionDuration,
+				                                false);
 			else
 				GetWorldTimerManager().SetTimer(TimerHandle_Interaction,
 				                                this, &APlayerCharacter::Interact,
@@ -184,13 +189,18 @@ void APlayerCharacter::Interact()
 
 void APlayerCharacter::ControlPuzzle(APuzzlePawn* PuzzlePawn)
 {
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC && PuzzlePawn)
 	{
-		if (PC && PuzzlePawn)
-		{
-			PC->UnPossess();
-			PC->Possess(PuzzlePawn);
-		}
+		PuzzlePawn->EndFocus();
+		HUD = Cast<APlayerHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+		if (HUD)
+			HUD->HideInteractionWidget();
+
+		APlayerCharacter* Player = Cast<APlayerCharacter>(PC->GetPawn());
+		PC->UnPossess();
+		PuzzlePawn->SetPlayerRef(Player);
+		PC->Possess(PuzzlePawn);
 	}
 }
 

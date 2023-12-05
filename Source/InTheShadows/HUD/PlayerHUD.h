@@ -32,7 +32,6 @@ public:
 	void ShowInteractionWidget() const;
 	void HideInteractionWidget() const;
 	void UpdateInteractionWidget(const FInteractableData* InteractableData) const;
-	void ShowProgressBar() const;
 
 protected:
 	virtual void BeginPlay() override;

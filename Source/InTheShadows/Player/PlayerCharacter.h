@@ -49,12 +49,12 @@ public:
 
 	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); };
 
+	UPROPERTY()
+	APlayerHUD* HUD;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY()
-	APlayerHUD* HUD;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
 	UInputMappingContext* BaseMappingContext;

@@ -60,12 +60,6 @@ void APlayerHUD::HideInteractionWidget() const
 		InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void APlayerHUD::ShowProgressBar() const
-{
-	if (InteractionWidget)
-		InteractionWidget->ShowProgressBar();
-}
-
 void APlayerHUD::UpdateInteractionWidget(const FInteractableData* InteractableData) const
 {
 	if (InteractionWidget)

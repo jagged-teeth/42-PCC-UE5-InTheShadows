@@ -22,7 +22,6 @@ public:
 	APlayerCharacter* PC;
 
 	void UpdateWidget(const FInteractableData* InteractableData) const;
-	void ShowProgressBar() const;
 
 protected:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "InteractionWidget | Interactable Data")

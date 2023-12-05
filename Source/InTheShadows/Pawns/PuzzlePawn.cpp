@@ -83,19 +83,13 @@ void APuzzlePawn::EndFocus()
 void APuzzlePawn::BeginInteract()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Calling BeginInteract override on Puzzle Pawn"));
-	EndFocus();
-
-	PlayerHUD = Cast<APlayerHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-	if (PlayerHUD)
-		PlayerHUD->HideInteractionWidget();
 }
 
 void APuzzlePawn::StartInteract()
 {
 	// Start a timer for long press detection
 	UE_LOG(LogTemp, Warning, TEXT("Calling StartInteract override on Puzzle Pawn"));
-	PlayerHUD->ShowInteractionWidget();
-	PlayerHUD->ShowProgressBar();
+	PlayerRef->HUD->ShowInteractionWidget();
 	GetWorld()->GetTimerManager().SetTimer(InteractTimerHandle, this, &APuzzlePawn::OnLongPressComplete,
 	                                       LongPressDuration, false);
 }
@@ -113,10 +107,15 @@ void APuzzlePawn::OnLongPressComplete()
 {
 	// PlayerRef = PC;
 	UE_LOG(LogTemp, Warning, TEXT("Calling OnLongPressComplete override on Puzzle Pawn"));
-	if (AController* PController = GetController())
+	if (AController* PC = GetController())
 	{
-		PController->UnPossess();
-		// Controller->Possess(PlayerRef);
+		if (PlayerRef)
+		{
+			PC->UnPossess();
+			PC->Possess(PlayerRef);
+		}
+		else
+			UE_LOG(LogTemp, Warning, TEXT("PlayerRef is nullptr"));
 	}
 }
 
