@@ -14,10 +14,9 @@ class APlayerCharacter;
 class UInputAction;
 class UInputMappingContext;
 class UCameraComponent;
-class USphereComponent;
 class UStaticMeshComponent;
-class URotatingMovementComponent;
 class UTimelineComponent;
+class APlayerHUD;
 
 UCLASS(Blueprintable)
 class INTHESHADOWS_API APuzzlePawn : public APawn, public IInteractionInterface
@@ -43,13 +42,7 @@ protected:
 	FInteractableData InstanceInteractableData;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	USphereComponent* SphereCollider;
-
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UStaticMeshComponent* StaticMesh;
-
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	URotatingMovementComponent* RotatingMovement;
 
 	UPROPERTY(EditAnywhere)
 	UTimelineComponent* Timeline;
@@ -69,24 +62,33 @@ protected:
 	// Interface Override
 	virtual void BeginFocus() override;
 	virtual void EndFocus() override;
+	virtual void BeginInteract() override;
+	virtual void EndInteract() override;
 	virtual void Interact(APlayerCharacter* PC) override;
+	void StartInteract();
+	void OnLongPressComplete();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Puzzle | Input")
 	UInputAction* LookAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
-	UInputAction* RotateAction;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Puzzle | Input")
+	UInputAction* InteractAction;
+
 	void Look(const FInputActionValue& Value);
-	void Rotate(const FInputActionValue& Value);
 
 private:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere)
 	UCameraComponent* PuzzleCamera;
 
+	UPROPERTY()
+	APlayerCharacter *PlayerRef;
+
+	UPROPERTY(VisibleInstanceOnly)
+	APlayerHUD* PlayerHUD = nullptr;
+	
 	bool bIsFloating = false;
 	float StartLocation;
 
-	UPROPERTY()
-	float RotationSpeed = 100.f;
+	FTimerHandle InteractTimerHandle;
+	float LongPressDuration = 1.0f;
 };

@@ -33,14 +33,21 @@ void UInteractionWidget::UpdateWidget(const FInteractableData* InteractableData)
 	case EInteractableType::Progress:
 		InteractionProgressBar->SetVisibility(ESlateVisibility::Visible);
 		break;
+	case EInteractableType::Puzzle:
+		InteractionProgressBar->SetVisibility(ESlateVisibility::Collapsed);
+		break;
 	default: ;
 	}
-	
 	InteractionImage->SetVisibility(ESlateVisibility::Visible);
 	ActionText->SetText(InteractableData->Action);
 }
 
 float UInteractionWidget::UpdateInteractionProgress()
 {
-	return 0.0f;
+	return 0.f;
+}
+
+void UInteractionWidget::ShowProgressBar() const
+{
+	InteractionProgressBar->SetVisibility(ESlateVisibility::Visible);
 }

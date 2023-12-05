@@ -172,10 +172,7 @@ void APlayerCharacter::Interact()
 	if (IsValid(TargetInteractable.GetObject()))
 	{
 		if (TargetInteractable->InteractableData.InteractableType == EInteractableType::Instant)
-		{
 			TargetInteractable->Interact(this);
-			UE_LOG(LogTemp, Warning, TEXT("Interacting with Instant Object"));
-		}
 		else if (TargetInteractable->InteractableData.InteractableType == EInteractableType::Puzzle)
 		{
 			if (APuzzlePawn* PuzzlePawn = Cast<APuzzlePawn>(InteractionData.CurrentInteractable))
@@ -218,27 +215,6 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void APlayerCharacter::Rotate(const FInputActionValue& Value)
-{
-	const FVector2D LookAxisValue = Value.Get<FVector2D>();
-	if (PlayerMesh)
-	{
-		// Determine the rotation amount, you might want to multiply these by a rotation speed factor
-		float DeltaYaw = LookAxisValue.X;
-		float DeltaPitch = LookAxisValue.Y;
-
-		// Get the current rotation
-		FRotator CurrentRotation = PlayerMesh->GetRelativeRotation();
-
-		// Modify the rotation based on the input
-		CurrentRotation.Yaw += DeltaYaw;
-		CurrentRotation.Pitch += DeltaPitch;
-
-		// Set the new rotation
-		PlayerMesh->SetRelativeRotation(CurrentRotation);
-	}
-}
-
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -254,9 +230,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		// Look
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 
-		// Rotate
-		EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Rotate);
-		
 		// Interact
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this,
 		                                   &APlayerCharacter::BeginInteract);

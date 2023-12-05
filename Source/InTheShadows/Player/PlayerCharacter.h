@@ -66,9 +66,6 @@ protected:
 	UInputAction* LookAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
-	UInputAction* RotateAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
 	UInputAction* InteractAction;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
@@ -81,7 +78,6 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void Rotate(const FInputActionValue& Value);
 
 	void PerformInteractionCheck();
 	void FoundInteractable(AActor* NewInteractable);

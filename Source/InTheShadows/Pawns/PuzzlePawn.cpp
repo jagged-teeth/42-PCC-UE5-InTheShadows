@@ -6,8 +6,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/SphereComponent.h"
-#include "Gameframework/RotatingMovementComponent.h"
+#include "InTheShadows/Player/PlayerCharacter.h"
+#include "InTheShadows/HUD/PlayerHUD.h"
 
 // Sets default values
 APuzzlePawn::APuzzlePawn()
@@ -19,15 +19,12 @@ APuzzlePawn::APuzzlePawn()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("PuzzleMesh");
 	StaticMesh->SetupAttachment(RootComponent);
 
+	USceneComponent* CameraHolder = CreateDefaultSubobject<USceneComponent>("CameraHolder");
+	CameraHolder->SetupAttachment(RootComponent);
+
 	PuzzleCamera = CreateDefaultSubobject<UCameraComponent>("Camera");
-	PuzzleCamera->SetupAttachment(RootComponent);
-
-	SphereCollider = CreateDefaultSubobject<USphereComponent>("Sphere");
-	SphereCollider->SetupAttachment(RootComponent);
-	SphereCollider->InitSphereRadius(64.f);
-	SphereCollider->SetCollisionProfileName(TEXT("Trigger"));
-
-	RotatingMovement = CreateDefaultSubobject<URotatingMovementComponent>("RotatingMovement");
+	PuzzleCamera->SetupAttachment(CameraHolder);
+	PuzzleCamera->bUsePawnControlRotation = false;
 
 	bIsFloating = true;
 
@@ -83,6 +80,46 @@ void APuzzlePawn::EndFocus()
 		EndInteract();
 }
 
+void APuzzlePawn::BeginInteract()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Calling BeginInteract override on Puzzle Pawn"));
+	EndFocus();
+
+	PlayerHUD = Cast<APlayerHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	if (PlayerHUD)
+		PlayerHUD->HideInteractionWidget();
+}
+
+void APuzzlePawn::StartInteract()
+{
+	// Start a timer for long press detection
+	UE_LOG(LogTemp, Warning, TEXT("Calling StartInteract override on Puzzle Pawn"));
+	PlayerHUD->ShowInteractionWidget();
+	PlayerHUD->ShowProgressBar();
+	GetWorld()->GetTimerManager().SetTimer(InteractTimerHandle, this, &APuzzlePawn::OnLongPressComplete,
+	                                       LongPressDuration, false);
+}
+
+void APuzzlePawn::EndInteract()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Calling EndInteract override on Puzzle Pawn"));
+	if (GetWorld()->GetTimerManager().IsTimerActive(InteractTimerHandle))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(InteractTimerHandle);
+	}
+}
+
+void APuzzlePawn::OnLongPressComplete()
+{
+	// PlayerRef = PC;
+	UE_LOG(LogTemp, Warning, TEXT("Calling OnLongPressComplete override on Puzzle Pawn"));
+	if (AController* PController = GetController())
+	{
+		PController->UnPossess();
+		// Controller->Possess(PlayerRef);
+	}
+}
+
 void APuzzlePawn::Interact(APlayerCharacter* PC)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Calling Interact override on Puzzle Pawn"));
@@ -91,34 +128,19 @@ void APuzzlePawn::Interact(APlayerCharacter* PC)
 void APuzzlePawn::Look(const FInputActionValue& Value)
 {
 	const FVector2D LookAxisValue = Value.Get<FVector2D>();
-	if (GetController())
-	{
-		AddControllerYawInput(LookAxisValue.X);
-		AddControllerPitchInput(LookAxisValue.Y);
-	}
-}
-
-void APuzzlePawn::Rotate(const FInputActionValue& Value)
-{
-	const FVector2D LookAxisValue = Value.Get<FVector2D>();
 	if (StaticMesh)
 	{
-		// Determine the rotation amount, you might want to multiply these by a rotation speed factor
-		float DeltaYaw = LookAxisValue.X;
-		float DeltaPitch = LookAxisValue.Y;
+		const float DeltaYaw = LookAxisValue.X;
+		const float DeltaPitch = LookAxisValue.Y;
 
-		// Get the current rotation
 		FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
 
-		// Modify the rotation based on the input
 		CurrentRotation.Yaw += DeltaYaw;
 		CurrentRotation.Pitch += DeltaPitch;
 
-		// Set the new rotation
 		StaticMesh->SetRelativeRotation(CurrentRotation);
 	}
 }
-
 
 // Called to bind functionality to input
 void APuzzlePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -127,10 +149,13 @@ void APuzzlePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		// Rotate
-		EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Rotate);
-
 		// Look
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Look);
+
+		// Interact
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this,
+		                                   &APuzzlePawn::StartInteract);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this,
+		                                   &APuzzlePawn::EndInteract);
 	}
 }
