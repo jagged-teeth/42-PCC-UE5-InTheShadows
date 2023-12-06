@@ -14,4 +14,8 @@ class INTHESHADOWS_API AInTheShadowsGameMode : public AGameModeBase
 
 public:
 	AInTheShadowsGameMode();
+	void InitializeDefaultPuzzleStates();
+
+protected:
+	virtual void BeginPlay() override;
 };

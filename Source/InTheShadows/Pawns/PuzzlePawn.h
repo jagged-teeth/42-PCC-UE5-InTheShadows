@@ -96,11 +96,14 @@ private:
 
 	UPROPERTY()
 	APlayerCharacter* PlayerRef;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsPuzzleSolved = false;
+	
 	FTimerHandle InteractTimerHandle;
 	FRotator TargetRotation;
 
 	bool bIsFloating = false;
-	bool bIsPuzzleSolved = false;
 	bool bIsRollActive;
 	
 	float StartLocation;

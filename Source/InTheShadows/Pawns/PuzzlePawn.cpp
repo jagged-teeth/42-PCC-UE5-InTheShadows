@@ -81,7 +81,10 @@ void APuzzlePawn::SetPuzzleSolved(bool Solved)
 	bIsPuzzleSolved = Solved;
 	UITS_GameInstance* GI = Cast<UITS_GameInstance>(GetGameInstance());
 	if (GI)
+	{
 		GI->SetPuzzleState(InteractableData.Name, bIsPuzzleSolved);
+		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s solved and saved!"), bIsPuzzleSolved, *InteractableData.Name.ToString());
+	}
 }
 
 // Check Rotation
