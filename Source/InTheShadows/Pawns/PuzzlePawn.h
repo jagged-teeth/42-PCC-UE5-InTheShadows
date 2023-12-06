@@ -32,6 +32,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	// Public Misc Functions
 	void SetPlayerRef(APlayerCharacter* Player) { PlayerRef = Player; };
 	virtual void EndFocus() override;
 
@@ -71,6 +73,10 @@ protected:
 	UFUNCTION()
 	void HandleFloatingTimelineProgress(float Value);
 
+	// Rotation Tolerance
+	UPROPERTY(EditAnywhere)
+	float RotationTolerance;
+
 	// Interface Override
 	virtual void BeginFocus() override;
 	virtual void BeginInteract() override;
@@ -82,6 +88,7 @@ protected:
 	void Roll(const FInputActionValue& Value);
 	void StopRoll() { bIsRollActive = false; }
 	bool IsRotationValid(const FRotator& TargetRotation, float Tolerance) const;
+	void SetPuzzleSolved(bool Solved);
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -91,13 +98,11 @@ private:
 	APlayerCharacter* PlayerRef;
 	FTimerHandle InteractTimerHandle;
 	FRotator TargetRotation;
+
 	bool bIsFloating = false;
+	bool bIsPuzzleSolved = false;
 	bool bIsRollActive;
+	
 	float StartLocation;
 	float LongPressDuration = 1.0f;
-	float RotationTolerance;
-
-	float TimeSinceLastLog = 0.0f;
 };
-
-// values 115.6, -1.14, 94.26

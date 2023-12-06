@@ -8,6 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "InTheShadows/Player/PlayerCharacter.h"
 #include "InTheShadows/HUD/PlayerHUD.h"
+#include "InTheShadows/GameInstance/ITS_GameInstance.h"
 
 // Sets default values
 APuzzlePawn::APuzzlePawn()
@@ -28,8 +29,8 @@ APuzzlePawn::APuzzlePawn()
 
 	// Initialize variables
 	bIsFloating = true;
-	TargetRotation = FRotator(-1.60, 95.77, 118.17);
-	RotationTolerance = 10.f;
+	TargetRotation = FRotator(0.4, 90.4, 112.6);
+	RotationTolerance = 3.f;
 
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -41,6 +42,12 @@ void APuzzlePawn::BeginPlay()
 	Super::BeginPlay();
 
 	InteractableData = InstanceInteractableData;
+
+	if (UITS_GameInstance* GI = Cast<UITS_GameInstance>(GetGameInstance()))
+	{
+		bIsPuzzleSolved = GI->GetPuzzleState(InteractableData.Name);
+		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s created"), bIsPuzzleSolved, *InteractableData.Name.ToString());
+	}
 
 	if (FloatingCurve && bIsFloating)
 	{
@@ -61,20 +68,35 @@ void APuzzlePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	FloatingTimeline.TickTimeline(DeltaTime);
 
-	// Debug
-	TimeSinceLastLog += DeltaTime;
-	if (TimeSinceLastLog >= 5.0f)
+	if (IsRotationValid(TargetRotation, RotationTolerance) && !bIsPuzzleSolved)
 	{
-		FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
-		UE_LOG(LogTemp, Warning, TEXT("Current Rotation: Pitch=%f, Yaw=%f, Roll=%f"),
-		       CurrentRotation.Pitch, CurrentRotation.Yaw, CurrentRotation.Roll);
-		TimeSinceLastLog = 0.0f;
+		bIsPuzzleSolved = true;
+		SetPuzzleSolved(bIsPuzzleSolved);
 	}
-
-	if (IsRotationValid(TargetRotation, RotationTolerance))
-		UE_LOG(LogTemp, Warning, TEXT("!!! ROTATION IS VALID !!!"));
 }
 
+// Save Puzzle State
+void APuzzlePawn::SetPuzzleSolved(bool Solved)
+{
+	bIsPuzzleSolved = Solved;
+	UITS_GameInstance* GI = Cast<UITS_GameInstance>(GetGameInstance());
+	if (GI)
+		GI->SetPuzzleState(InteractableData.Name, bIsPuzzleSolved);
+}
+
+// Check Rotation
+bool APuzzlePawn::IsRotationValid(const FRotator& TargetRot, float Tolerance) const
+{
+	FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
+
+	CurrentRotation.Roll = FMath::Abs(CurrentRotation.Roll);
+	CurrentRotation.Yaw = FMath::Abs(CurrentRotation.Yaw);
+	CurrentRotation.Pitch = FMath::Abs(CurrentRotation.Pitch); // maybe not needed (to test)
+
+	return CurrentRotation.Equals(TargetRotation, Tolerance);
+}
+
+// Timeline Events
 void APuzzlePawn::HandleFloatingTimelineProgress(float Value)
 {
 	FVector NewLocation = GetActorLocation();
@@ -82,13 +104,7 @@ void APuzzlePawn::HandleFloatingTimelineProgress(float Value)
 	SetActorLocation(NewLocation);
 }
 
-// Check Rotation
-bool APuzzlePawn::IsRotationValid(const FRotator& TargetRot, float Tolerance) const
-{
-	FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
-	return CurrentRotation.Equals(TargetRotation, Tolerance);
-}
-
+// Interface Override
 void APuzzlePawn::BeginFocus()
 {
 	if (StaticMesh)
@@ -149,7 +165,7 @@ void APuzzlePawn::Interact(APlayerCharacter* PC)
 
 void APuzzlePawn::Look(const FInputActionValue& Value)
 {
-	if (!bIsRollActive)
+	if (!bIsRollActive && !IsRotationValid(TargetRotation, RotationTolerance))
 	{
 		const FVector2D LookAxisValue = Value.Get<FVector2D>();
 		if (StaticMesh)
@@ -169,17 +185,20 @@ void APuzzlePawn::Look(const FInputActionValue& Value)
 
 void APuzzlePawn::Roll(const FInputActionValue& Value)
 {
-	bIsRollActive = true;
-	const float RollAxisValue = Value.Get<float>();
-	if (StaticMesh)
+	if (!IsRotationValid(TargetRotation, RotationTolerance))
 	{
-		const float DeltaRoll = RollAxisValue;
+		bIsRollActive = true;
+		const float RollAxisValue = Value.Get<float>();
+		if (StaticMesh)
+		{
+			const float DeltaRoll = RollAxisValue;
 
-		FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
+			FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
 
-		CurrentRotation.Roll += DeltaRoll;
+			CurrentRotation.Roll += DeltaRoll;
 
-		StaticMesh->SetRelativeRotation(CurrentRotation);
+			StaticMesh->SetRelativeRotation(CurrentRotation);
+		}
 	}
 }
 
