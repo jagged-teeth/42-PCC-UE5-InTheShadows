@@ -42,7 +42,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Components
-	UPROPERTY(EditInstanceOnly, Category = "Interactable")
+	UPROPERTY(EditInstanceOnly, Category = "Puzzle | Interactable")
 	FInteractableData InstanceInteractableData;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
@@ -67,14 +67,14 @@ protected:
 	// Timeline Events
 	FTimeline FloatingTimeline;
 
-	UPROPERTY(EditAnywhere, Category = "Floating Animation")
+	UPROPERTY(EditAnywhere, Category = "Puzzle | Floating Animation")
 	UCurveFloat* FloatingCurve;
 
 	UFUNCTION()
 	void HandleFloatingTimelineProgress(float Value);
 
 	// Rotation Tolerance
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Puzzle | Input")
 	float RotationTolerance;
 
 	// Interface Override
@@ -82,11 +82,17 @@ protected:
 	virtual void BeginInteract() override;
 	virtual void EndInteract() override;
 	virtual void Interact(APlayerCharacter* PC) override;
-	void StartInteract();
+
+	// Input to Possess
+	void StartPossessing();
 	void OnLongPressComplete();
+
+	// Movement Input
 	void Look(const FInputActionValue& Value);
 	void Roll(const FInputActionValue& Value);
 	void StopRoll() { bIsRollActive = false; }
+
+	// Solve check
 	bool IsRotationValid(const FRotator& TargetRotation, float Tolerance) const;
 	void SetPuzzleSolved(bool Solved);
 
@@ -97,15 +103,15 @@ private:
 	UPROPERTY()
 	APlayerCharacter* PlayerRef;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
 	bool bIsPuzzleSolved = false;
-	
+
 	FTimerHandle InteractTimerHandle;
 	FRotator TargetRotation;
 
 	bool bIsFloating = false;
 	bool bIsRollActive;
-	
+
 	float StartLocation;
 	float LongPressDuration = 1.0f;
 };

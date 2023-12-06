@@ -127,7 +127,7 @@ void APuzzlePawn::BeginInteract()
 	UE_LOG(LogTemp, Warning, TEXT("Calling BeginInteract override on Puzzle Pawn"));
 }
 
-void APuzzlePawn::StartInteract()
+void APuzzlePawn::StartPossessing()
 {
 	// Start a timer for long press detection
 	UE_LOG(LogTemp, Warning, TEXT("Calling StartInteract override on Puzzle Pawn"));
@@ -147,7 +147,6 @@ void APuzzlePawn::EndInteract()
 
 void APuzzlePawn::OnLongPressComplete()
 {
-	// PlayerRef = PC;
 	UE_LOG(LogTemp, Warning, TEXT("Calling OnLongPressComplete override on Puzzle Pawn"));
 	if (AController* PC = GetController())
 	{
@@ -221,7 +220,7 @@ void APuzzlePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		// Interact
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this,
-		                                   &APuzzlePawn::StartInteract);
+		                                   &APuzzlePawn::StartPossessing);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this,
 		                                   &APuzzlePawn::EndInteract);
 	}
