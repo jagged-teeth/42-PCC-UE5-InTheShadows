@@ -32,7 +32,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	void SetPlayerRef(APlayerCharacter* Player) { PlayerRef = Player;};
+	void SetPlayerRef(APlayerCharacter* Player) { PlayerRef = Player; };
 	virtual void EndFocus() override;
 
 protected:
@@ -52,6 +52,16 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UTimelineComponent* FloatingAnimation;
 
+	// Input
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Puzzle | Input")
+	UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Puzzle | Input")
+	UInputAction* InteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Puzzle | Input")
+	UInputAction* RollAction;
+
 	// Timeline Events
 	FTimeline FloatingTimeline;
 
@@ -68,25 +78,26 @@ protected:
 	virtual void Interact(APlayerCharacter* PC) override;
 	void StartInteract();
 	void OnLongPressComplete();
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Puzzle | Input")
-	UInputAction* LookAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Puzzle | Input")
-	UInputAction* InteractAction;
-
 	void Look(const FInputActionValue& Value);
+	void Roll(const FInputActionValue& Value);
+	void StopRoll() { bIsRollActive = false; }
+	bool IsRotationValid(const FRotator& TargetRotation, float Tolerance) const;
 
 private:
 	UPROPERTY(EditAnywhere)
 	UCameraComponent* PuzzleCamera;
 
 	UPROPERTY()
-	APlayerCharacter *PlayerRef;
-
-	bool bIsFloating = false;
-	float StartLocation;
-
+	APlayerCharacter* PlayerRef;
 	FTimerHandle InteractTimerHandle;
+	FRotator TargetRotation;
+	bool bIsFloating = false;
+	bool bIsRollActive;
+	float StartLocation;
 	float LongPressDuration = 1.0f;
+	float RotationTolerance;
+
+	float TimeSinceLastLog = 0.0f;
 };
+
+// values 115.6, -1.14, 94.26

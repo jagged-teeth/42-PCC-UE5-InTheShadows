@@ -26,7 +26,10 @@ APuzzlePawn::APuzzlePawn()
 	PuzzleCamera->SetupAttachment(CameraHolder);
 	PuzzleCamera->bUsePawnControlRotation = false;
 
+	// Initialize variables
 	bIsFloating = true;
+	TargetRotation = FRotator(-1.60, 95.77, 118.17);
+	RotationTolerance = 10.f;
 
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -57,6 +60,19 @@ void APuzzlePawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	FloatingTimeline.TickTimeline(DeltaTime);
+
+	// Debug
+	TimeSinceLastLog += DeltaTime;
+	if (TimeSinceLastLog >= 5.0f)
+	{
+		FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
+		UE_LOG(LogTemp, Warning, TEXT("Current Rotation: Pitch=%f, Yaw=%f, Roll=%f"),
+		       CurrentRotation.Pitch, CurrentRotation.Yaw, CurrentRotation.Roll);
+		TimeSinceLastLog = 0.0f;
+	}
+
+	if (IsRotationValid(TargetRotation, RotationTolerance))
+		UE_LOG(LogTemp, Warning, TEXT("!!! ROTATION IS VALID !!!"));
 }
 
 void APuzzlePawn::HandleFloatingTimelineProgress(float Value)
@@ -64,6 +80,13 @@ void APuzzlePawn::HandleFloatingTimelineProgress(float Value)
 	FVector NewLocation = GetActorLocation();
 	NewLocation.Z = StartLocation + Value;
 	SetActorLocation(NewLocation);
+}
+
+// Check Rotation
+bool APuzzlePawn::IsRotationValid(const FRotator& TargetRot, float Tolerance) const
+{
+	FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
+	return CurrentRotation.Equals(TargetRotation, Tolerance);
 }
 
 void APuzzlePawn::BeginFocus()
@@ -126,16 +149,35 @@ void APuzzlePawn::Interact(APlayerCharacter* PC)
 
 void APuzzlePawn::Look(const FInputActionValue& Value)
 {
-	const FVector2D LookAxisValue = Value.Get<FVector2D>();
+	if (!bIsRollActive)
+	{
+		const FVector2D LookAxisValue = Value.Get<FVector2D>();
+		if (StaticMesh)
+		{
+			const float DeltaYaw = LookAxisValue.X;
+			const float DeltaPitch = LookAxisValue.Y;
+
+			FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
+
+			CurrentRotation.Yaw += DeltaYaw;
+			CurrentRotation.Pitch += DeltaPitch;
+
+			StaticMesh->SetRelativeRotation(CurrentRotation);
+		}
+	}
+}
+
+void APuzzlePawn::Roll(const FInputActionValue& Value)
+{
+	bIsRollActive = true;
+	const float RollAxisValue = Value.Get<float>();
 	if (StaticMesh)
 	{
-		const float DeltaYaw = LookAxisValue.X;
-		const float DeltaPitch = LookAxisValue.Y;
+		const float DeltaRoll = RollAxisValue;
 
 		FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
 
-		CurrentRotation.Yaw += DeltaYaw;
-		CurrentRotation.Pitch += DeltaPitch;
+		CurrentRotation.Roll += DeltaRoll;
 
 		StaticMesh->SetRelativeRotation(CurrentRotation);
 	}
@@ -150,6 +192,10 @@ void APuzzlePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	{
 		// Look
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Look);
+
+		// Roll
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Roll);
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Completed, this, &APuzzlePawn::StopRoll);
 
 		// Interact
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this,
