@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "ITS_GameInstance.generated.h"
+#include "Its_GameInstance.generated.h"
 
 UCLASS()
-class INTHESHADOWS_API UITS_GameInstance : public UGameInstance
+class INTHESHADOWS_API UIts_GameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 

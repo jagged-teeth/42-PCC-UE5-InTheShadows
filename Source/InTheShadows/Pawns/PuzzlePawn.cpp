@@ -8,7 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "InTheShadows/Player/PlayerCharacter.h"
 #include "InTheShadows/HUD/PlayerHUD.h"
-#include "InTheShadows/GameInstance/ITS_GameInstance.h"
+#include "InTheShadows/GameInstance/Its_GameInstance.h"
 
 // Sets default values
 APuzzlePawn::APuzzlePawn()
@@ -43,7 +43,7 @@ void APuzzlePawn::BeginPlay()
 
 	InteractableData = InstanceInteractableData;
 
-	if (UITS_GameInstance* GI = Cast<UITS_GameInstance>(GetGameInstance()))
+	if (UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance()))
 	{
 		bIsPuzzleSolved = GI->GetPuzzleState(InteractableData.Name);
 		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s created"), bIsPuzzleSolved, *InteractableData.Name.ToString());
@@ -79,7 +79,7 @@ void APuzzlePawn::Tick(float DeltaTime)
 void APuzzlePawn::SetPuzzleSolved(bool Solved)
 {
 	bIsPuzzleSolved = Solved;
-	UITS_GameInstance* GI = Cast<UITS_GameInstance>(GetGameInstance());
+	UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance());
 	if (GI)
 	{
 		GI->SetPuzzleState(InteractableData.Name, bIsPuzzleSolved);

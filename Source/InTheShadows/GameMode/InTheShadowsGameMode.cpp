@@ -6,7 +6,7 @@
 #include "InTheShadows/Pawns/PuzzlePawn.h"
 #include "InTheShadows/Player/PlayerCharacter.h"
 #include "IntheShadows/HUD/PlayerHUD.h"
-#include "InTheShadows/GameInstance/ITS_GameInstance.h"
+#include "InTheShadows/GameInstance/Its_GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 AInTheShadowsGameMode::AInTheShadowsGameMode()
@@ -24,7 +24,7 @@ void AInTheShadowsGameMode::InitializeDefaultPuzzleStates()
 	TArray<AActor*> FoundPuzzles;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APuzzlePawn::StaticClass(), FoundPuzzles);
 
-	if (UITS_GameInstance* GI = Cast<UITS_GameInstance>(GetGameInstance()))
+	if (UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance()))
 	{
 		for (AActor* Actor : FoundPuzzles)
 		{
