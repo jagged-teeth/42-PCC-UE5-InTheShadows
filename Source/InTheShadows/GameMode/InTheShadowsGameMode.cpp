@@ -19,26 +19,27 @@ AInTheShadowsGameMode::AInTheShadowsGameMode()
 		HUDClass = APlayerHUD::StaticClass();
 }
 
-void AInTheShadowsGameMode::InitializeDefaultPuzzleStates()
-{
-	TArray<AActor*> FoundPuzzles;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APuzzlePawn::StaticClass(), FoundPuzzles);
-
-	if (UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance()))
-	{
-		for (AActor* Actor : FoundPuzzles)
-		{
-			if (APuzzlePawn* Puzzle = Cast<APuzzlePawn>(Actor))
-			{
-				GI->SetPuzzleState(Puzzle->InteractableData.Name, false, Puzzle->GetActorTransform());
-				UE_LOG(LogTemp, Warning, TEXT("Puzzle state loaded from game mode"));
-			}
-		}
-	}
-}
+// void AInTheShadowsGameMode::InitializeDefaultPuzzleStates()
+// {
+// 	TArray<AActor*> FoundPuzzles;
+// 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APuzzlePawn::StaticClass(), FoundPuzzles);
+//
+// 	if (UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance()))
+// 	{
+// 		for (AActor* Actor : FoundPuzzles)
+// 		{
+// 			if (APuzzlePawn* Puzzle = Cast<APuzzlePawn>(Actor))
+// 			{
+// 				GI->SetPuzzleState(Puzzle->InteractableData.Name, false);
+// 				// GI->SetPuzzleState(Puzzle->InteractableData.Name, false, Puzzle->GetActorTransform());
+// 				UE_LOG(LogTemp, Warning, TEXT("INIT DEFAULT Puzzle state loaded from game mode"));
+// 			}
+// 		}
+// 	}
+// }
 
 void AInTheShadowsGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	InitializeDefaultPuzzleStates(); 
+	// InitializeDefaultPuzzleStates();
 }

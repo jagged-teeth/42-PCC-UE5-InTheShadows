@@ -77,7 +77,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
 	float RotationTolerance;
 
-	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
+	UPROPERTY(EditAnywhere, Category = "Puzzle | State", ToolTip = "Positive values only")
 	FRotator TargetRotation;
 
 	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
@@ -109,7 +109,7 @@ private:
 
 	UPROPERTY()
 	APlayerCharacter* PlayerRef;
-	
+
 	FTimerHandle InteractTimerHandle;
 
 	bool bIsFloating = false;

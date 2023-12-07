@@ -45,10 +45,14 @@ void APuzzlePawn::BeginPlay()
 	// Loading puzzle state
 	if (UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance()))
 	{
-		bIsPuzzleSolved = GI->GetPuzzleState(InteractableData.Name, SavedTransform);
+		PuzzleTransform = StaticMesh->GetComponentTransform();
+		UE_LOG(LogTemp, Warning, TEXT("Puzzle transform before loading: %s"), *PuzzleTransform.ToString());
+		
+		bIsPuzzleSolved = GI->GetPuzzleState(InteractableData.Name, PuzzleTransform);
 		if (bIsPuzzleSolved)
-			StaticMesh->SetRelativeTransform(SavedTransform);
-		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s and transform %s loaded from constructor"), bIsPuzzleSolved, *InteractableData.Name.ToString(), *InitialTransform.ToString());
+			StaticMesh->SetWorldTransform(PuzzleTransform);
+		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s and transform %s loaded from constructor"),
+		       bIsPuzzleSolved, *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
 	}
 
 	// Floating timeline
@@ -87,7 +91,8 @@ void APuzzlePawn::SetPuzzleSolved(bool Solved)
 	{
 		PuzzleTransform = StaticMesh->GetComponentTransform();
 		GI->SetPuzzleState(InteractableData.Name, bIsPuzzleSolved, PuzzleTransform);
-		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s and transform %s saved"), bIsPuzzleSolved, *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s and transform %s saved"), bIsPuzzleSolved,
+		       *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
 	}
 }
 
@@ -98,7 +103,7 @@ bool APuzzlePawn::IsRotationValid(const FRotator& TargetRot, float Tolerance) co
 
 	CurrentRotation.Roll = FMath::Abs(CurrentRotation.Roll);
 	CurrentRotation.Yaw = FMath::Abs(CurrentRotation.Yaw);
-	CurrentRotation.Pitch = FMath::Abs(CurrentRotation.Pitch); // maybe not needed (to test)
+	CurrentRotation.Pitch = FMath::Abs(CurrentRotation.Pitch);
 
 	return CurrentRotation.Equals(TargetRotation, Tolerance);
 }
