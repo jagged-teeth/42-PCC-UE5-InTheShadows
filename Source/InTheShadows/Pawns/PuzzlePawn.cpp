@@ -32,7 +32,6 @@ APuzzlePawn::APuzzlePawn()
 	TargetRotation = FRotator(0.4, 90.4, 112.6);
 	RotationTolerance = 3.f;
 
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -43,12 +42,16 @@ void APuzzlePawn::BeginPlay()
 
 	InteractableData = InstanceInteractableData;
 
+	// Loading puzzle state
 	if (UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance()))
 	{
-		bIsPuzzleSolved = GI->GetPuzzleState(InteractableData.Name);
-		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s created"), bIsPuzzleSolved, *InteractableData.Name.ToString());
+		bIsPuzzleSolved = GI->GetPuzzleState(InteractableData.Name, SavedTransform);
+		if (bIsPuzzleSolved)
+			StaticMesh->SetRelativeTransform(SavedTransform);
+		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s and transform %s loaded from constructor"), bIsPuzzleSolved, *InteractableData.Name.ToString(), *InitialTransform.ToString());
 	}
 
+	// Floating timeline
 	if (FloatingCurve && bIsFloating)
 	{
 		StartLocation = GetActorLocation().Z;
@@ -75,15 +78,16 @@ void APuzzlePawn::Tick(float DeltaTime)
 	}
 }
 
-// Save Puzzle State
+// PUZZLE STATE
 void APuzzlePawn::SetPuzzleSolved(bool Solved)
 {
 	bIsPuzzleSolved = Solved;
 	UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance());
 	if (GI)
 	{
-		GI->SetPuzzleState(InteractableData.Name, bIsPuzzleSolved);
-		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s solved and saved!"), bIsPuzzleSolved, *InteractableData.Name.ToString());
+		PuzzleTransform = StaticMesh->GetComponentTransform();
+		GI->SetPuzzleState(InteractableData.Name, bIsPuzzleSolved, PuzzleTransform);
+		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s and transform %s saved"), bIsPuzzleSolved, *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
 	}
 }
 
@@ -99,7 +103,7 @@ bool APuzzlePawn::IsRotationValid(const FRotator& TargetRot, float Tolerance) co
 	return CurrentRotation.Equals(TargetRotation, Tolerance);
 }
 
-// Timeline Events
+// TIMELINE EVENTS
 void APuzzlePawn::HandleFloatingTimelineProgress(float Value)
 {
 	FVector NewLocation = GetActorLocation();
@@ -107,7 +111,7 @@ void APuzzlePawn::HandleFloatingTimelineProgress(float Value)
 	SetActorLocation(NewLocation);
 }
 
-// Interface Override
+// INTERFACE OVERRIDE
 void APuzzlePawn::BeginFocus()
 {
 	if (StaticMesh)
@@ -129,7 +133,6 @@ void APuzzlePawn::BeginInteract()
 
 void APuzzlePawn::StartPossessing()
 {
-	// Start a timer for long press detection
 	UE_LOG(LogTemp, Warning, TEXT("Calling StartInteract override on Puzzle Pawn"));
 	PlayerRef->HUD->ShowInteractionWidget();
 	GetWorld()->GetTimerManager().SetTimer(InteractTimerHandle, this, &APuzzlePawn::OnLongPressComplete,
@@ -165,6 +168,7 @@ void APuzzlePawn::Interact(APlayerCharacter* PC)
 	UE_LOG(LogTemp, Warning, TEXT("Calling Interact override on Puzzle Pawn"));
 }
 
+// INPUT
 void APuzzlePawn::Look(const FInputActionValue& Value)
 {
 	if (!bIsRollActive && !IsRotationValid(TargetRotation, RotationTolerance))

@@ -29,7 +29,10 @@ void AInTheShadowsGameMode::InitializeDefaultPuzzleStates()
 		for (AActor* Actor : FoundPuzzles)
 		{
 			if (APuzzlePawn* Puzzle = Cast<APuzzlePawn>(Actor))
-				GI->SetPuzzleState(Puzzle->InteractableData.Name, false);
+			{
+				GI->SetPuzzleState(Puzzle->InteractableData.Name, false, Puzzle->GetActorTransform());
+				UE_LOG(LogTemp, Warning, TEXT("Puzzle state loaded from game mode"));
+			}
 		}
 	}
 }
@@ -37,5 +40,5 @@ void AInTheShadowsGameMode::InitializeDefaultPuzzleStates()
 void AInTheShadowsGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	InitializeDefaultPuzzleStates();
+	InitializeDefaultPuzzleStates(); 
 }

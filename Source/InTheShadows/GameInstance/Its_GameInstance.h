@@ -13,10 +13,17 @@ class INTHESHADOWS_API UIts_GameInstance : public UGameInstance
 
 public:
 	virtual void Init() override;
-	
-	void SetPuzzleState(const FText& PuzzleName, bool bIsCompleted);
-	bool GetPuzzleState(const FText& PuzzleName) const;
+
+	void SetPuzzleState(const FText& PuzzleName, bool bIsCompleted, const FTransform& PuzzleTransform);
 	void InitializeDefaultPuzzleStates(const TMap<FString, bool>& InitialStates);
+
+	UFUNCTION(BlueprintCallable)
+	bool GetPuzzleState(const FText& PuzzleName, FTransform& PuzzleTransform) const;
+
+	UFUNCTION(BlueprintCallable)
+	void ResetPuzzleStates();
+
 private:
 	TMap<FString, bool> PuzzleStates;
+	TMap<FString, FTransform> PuzzleTransforms;
 };

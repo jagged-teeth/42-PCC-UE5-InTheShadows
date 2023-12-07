@@ -12,6 +12,9 @@ class INTHESHADOWS_API UIts_SaveGame : public USaveGame
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category = Basic)
+	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
 	TMap<FString, bool> SavedPuzzleStates;
+
+	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
+	TMap<FString, FTransform> SavedPuzzleTransforms;
 };

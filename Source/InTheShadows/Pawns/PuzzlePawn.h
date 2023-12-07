@@ -73,9 +73,15 @@ protected:
 	UFUNCTION()
 	void HandleFloatingTimelineProgress(float Value);
 
-	// Rotation Tolerance
-	UPROPERTY(EditAnywhere, Category = "Puzzle | Input")
+	// Puzzle State
+	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
 	float RotationTolerance;
+
+	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
+	FRotator TargetRotation;
+
+	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
+	bool bIsPuzzleSolved = false;
 
 	// Interface Override
 	virtual void BeginFocus() override;
@@ -95,6 +101,7 @@ protected:
 	// Solve check
 	bool IsRotationValid(const FRotator& TargetRotation, float Tolerance) const;
 	void SetPuzzleSolved(bool Solved);
+	FTransform PuzzleTransform;
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -102,12 +109,8 @@ private:
 
 	UPROPERTY()
 	APlayerCharacter* PlayerRef;
-
-	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
-	bool bIsPuzzleSolved = false;
-
+	
 	FTimerHandle InteractTimerHandle;
-	FRotator TargetRotation;
 
 	bool bIsFloating = false;
 	bool bIsRollActive;
