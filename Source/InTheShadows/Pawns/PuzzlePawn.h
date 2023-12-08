@@ -77,7 +77,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
 	float RotationTolerance;
 
-	UPROPERTY(EditAnywhere, Category = "Puzzle | State", ToolTip = "Positive values only")
+	UPROPERTY(EditAnywhere, Category = "Puzzle | State", META = (ToolTip= "Positive values only"))
 	FRotator TargetRotation;
 
 	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
