@@ -15,7 +15,7 @@ public:
 	virtual void Init() override;
 
 	void SetPuzzleState(const FText& PuzzleName, bool bIsCompleted, const FTransform& PuzzleTransform);
-	void InitializeDefaultPuzzleStates(const TMap<FString, bool>& InitialStates);
+	// void InitializeDefaultPuzzleStates(const TMap<FString, bool>& InitialStates);
 
 	UFUNCTION(BlueprintCallable)
 	bool GetPuzzleState(const FText& PuzzleName, FTransform& PuzzleTransform) const;
