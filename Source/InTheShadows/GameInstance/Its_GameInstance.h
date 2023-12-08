@@ -23,7 +23,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ResetPuzzleStates();
 
+	// Use this in the menu widget
+	UFUNCTION(BlueprintCallable)
+	bool GetIsSaveDeleted() const { return bIsSaveDeleted; };
+
 private:
 	TMap<FString, bool> PuzzleStates;
 	TMap<FString, FTransform> PuzzleTransforms;
+	bool bIsSaveDeleted = false;
 };

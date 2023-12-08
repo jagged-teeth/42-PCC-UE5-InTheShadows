@@ -15,6 +15,7 @@ void UIts_GameInstance::Init()
 		UIts_SaveGame* LoadGameInstance = Cast<UIts_SaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("SaveSlot"), 0));
 		if (LoadGameInstance != nullptr)
 		{
+			bIsSaveDeleted = false;
 			PuzzleStates = LoadGameInstance->SavedPuzzleStates;
 			PuzzleTransforms = LoadGameInstance->SavedPuzzleTransforms;
 		}
@@ -22,21 +23,23 @@ void UIts_GameInstance::Init()
 	}
 	else
 	{
-		InitializeDefaultPuzzleStates(PuzzleStates);
+		// InitializeDefaultPuzzleStates(PuzzleStates);
+		bIsSaveDeleted = true;
 		UE_LOG(LogTemp, Warning, TEXT("Save not found, puzzle states initialized from game instance"));
 	}
 }
 
-void UIts_GameInstance::InitializeDefaultPuzzleStates(const TMap<FString, bool>& InitialStates)
-{
-	PuzzleStates = InitialStates;
-	UE_LOG(LogTemp, Warning, TEXT("Puzzle States initialized from game instance : InitializeDefaultPuzzleStates"));
-}
+// void UIts_GameInstance::InitializeDefaultPuzzleStates(const TMap<FString, bool>& InitialStates)
+// {
+// 	PuzzleStates = InitialStates;
+// 	UE_LOG(LogTemp, Warning, TEXT("Puzzle States initialized from game instance : InitializeDefaultPuzzleStates"));
+// }
 
 void UIts_GameInstance::ResetPuzzleStates()
 {
 	PuzzleStates.Empty();
 	UGameplayStatics::DeleteGameInSlot(TEXT("SaveSlot"), 0);
+	bIsSaveDeleted = true;
 	UE_LOG(LogTemp, Warning, TEXT("Save deleted from game instance"));
 }
 
@@ -48,6 +51,7 @@ void UIts_GameInstance::SetPuzzleState(const FText& PuzzleName, bool bIsComplete
 	if (UIts_SaveGame* SaveGameInstance = Cast<UIts_SaveGame>(
 		UGameplayStatics::CreateSaveGameObject(UIts_SaveGame::StaticClass())))
 	{
+		bIsSaveDeleted = false;
 		SaveGameInstance->SavedPuzzleStates = PuzzleStates;
 		SaveGameInstance->SavedPuzzleTransforms = PuzzleTransforms;
 
