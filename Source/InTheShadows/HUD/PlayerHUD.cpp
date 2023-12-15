@@ -35,6 +35,12 @@ void APlayerHUD::DisplayMenu()
 	if (MainMenuWidget)
 	{
 		bIsMenuDisplayed = true;
+		if (APlayerController* PC = GetOwningPlayerController())
+		{
+			PC->bShowMouseCursor = true;
+			PC->SetInputMode(FInputModeGameAndUI());
+		}
+		
 		MainMenuWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
@@ -44,6 +50,12 @@ void APlayerHUD::HideMenu()
 	if (MainMenuWidget)
 	{
 		bIsMenuDisplayed = false;
+		if (APlayerController* PC = GetOwningPlayerController())
+		{
+			PC->bShowMouseCursor = false;
+			PC->SetInputMode(FInputModeGameOnly());
+		}
+		
 		MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }

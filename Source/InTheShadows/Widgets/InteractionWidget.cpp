@@ -35,6 +35,7 @@ void UInteractionWidget::UpdateWidget(const FInteractableData* InteractableData)
 		break;
 	case EInteractableType::Puzzle:
 		InteractionProgressBar->SetVisibility(ESlateVisibility::Collapsed);
+		NameText->SetText(InteractableData->Name);
 		break;
 	default: ;
 	}

@@ -48,11 +48,11 @@ void APuzzlePawn::BeginPlay()
 		PuzzleTransform = StaticMesh->GetComponentTransform();
 		UE_LOG(LogTemp, Warning, TEXT("Puzzle transform before loading: %s"), *PuzzleTransform.ToString());
 		
-		bIsPuzzleSolved = GI->GetPuzzleState(InteractableData.Name, PuzzleTransform);
-		if (bIsPuzzleSolved)
+		CurrentPuzzleState = GI->GetPuzzleState(InteractableData.Name, PuzzleTransform);
+		if (CurrentPuzzleState.bIsPuzzleSolved)
 			StaticMesh->SetWorldTransform(PuzzleTransform);
-		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s and transform %s loaded from constructor"),
-		       bIsPuzzleSolved, *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, Puzzle Sound: %d with name %s and transform %s loaded from constructor"),
+		       CurrentPuzzleState.bIsPuzzleSolved, CurrentPuzzleState.HasPlayedSound, *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
 	}
 
 	// Floating timeline
@@ -75,23 +75,33 @@ void APuzzlePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	FloatingTimeline.TickTimeline(DeltaTime);
 
-	if (IsRotationValid(TargetRotation, RotationTolerance) && !bIsPuzzleSolved)
+	if (IsRotationValid(TargetRotation, RotationTolerance) && !CurrentPuzzleState.bIsPuzzleSolved)
 	{
-		bIsPuzzleSolved = true;
-		SetPuzzleSolved(bIsPuzzleSolved);
+		CurrentPuzzleState.bIsPuzzleSolved = true;
+		PlaySoundAndDestroyWall();
+		SetPuzzleSolved();
+	}
+}
+
+void APuzzlePawn::PlaySoundAndDestroyWall()
+{
+	if (CurrentPuzzleState.bIsPuzzleSolved && !CurrentPuzzleState.HasPlayedSound)
+	{
+		CurrentPuzzleState.HasPlayedSound = true;
+		PlayPuzzleSolvedSound();
+		DestroyWall();
 	}
 }
 
 // PUZZLE STATE
-void APuzzlePawn::SetPuzzleSolved(bool Solved)
+void APuzzlePawn::SetPuzzleSolved()
 {
-	bIsPuzzleSolved = Solved;
 	UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance());
 	if (GI)
 	{
 		PuzzleTransform = StaticMesh->GetComponentTransform();
-		GI->SetPuzzleState(InteractableData.Name, bIsPuzzleSolved, PuzzleTransform);
-		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, with name %s and transform %s saved"), bIsPuzzleSolved,
+		GI->SetPuzzleState(InteractableData.Name, CurrentPuzzleState, PuzzleTransform);
+		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, Puzzle Sound: %d, with name %s and transform %s saved"), CurrentPuzzleState.bIsPuzzleSolved, CurrentPuzzleState.HasPlayedSound,
 		       *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
 	}
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "InTheShadows/Pawns/PuzzlePawn.h"
 #include "Its_SaveGame.generated.h"
 
 UCLASS()
@@ -13,7 +14,7 @@ class INTHESHADOWS_API UIts_SaveGame : public USaveGame
 
 public:
 	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-	TMap<FString, bool> SavedPuzzleStates;
+	TMap<FString, FPuzzleState> SavedPuzzleStates;
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
 	TMap<FString, FTransform> SavedPuzzleTransforms;

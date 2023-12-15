@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "InTheShadows/Pawns/PuzzlePawn.h"
 #include "Its_GameInstance.generated.h"
 
 UCLASS()
@@ -14,11 +15,11 @@ class INTHESHADOWS_API UIts_GameInstance : public UGameInstance
 public:
 	virtual void Init() override;
 
-	void SetPuzzleState(const FText& PuzzleName, bool bIsCompleted, const FTransform& PuzzleTransform);
+	void SetPuzzleState(const FText& PuzzleName, const FPuzzleState& State, const FTransform& PuzzleTransform);
 	// void InitializeDefaultPuzzleStates(const TMap<FString, bool>& InitialStates);
 
 	UFUNCTION(BlueprintCallable)
-	bool GetPuzzleState(const FText& PuzzleName, FTransform& PuzzleTransform) const;
+	FPuzzleState GetPuzzleState(const FText& PuzzleName, FTransform& PuzzleTransform) const;
 
 	UFUNCTION(BlueprintCallable)
 	void ResetPuzzleStates();
@@ -28,7 +29,7 @@ public:
 	bool GetIsSaveDeleted() const { return bIsSaveDeleted; };
 
 private:
-	TMap<FString, bool> PuzzleStates;
+	TMap<FString, FPuzzleState> PuzzleStates;
 	TMap<FString, FTransform> PuzzleTransforms;
 	bool bIsSaveDeleted = false;
 };

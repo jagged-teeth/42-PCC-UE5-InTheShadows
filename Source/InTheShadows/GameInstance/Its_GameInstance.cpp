@@ -43,9 +43,10 @@ void UIts_GameInstance::ResetPuzzleStates()
 	UE_LOG(LogTemp, Warning, TEXT("Save deleted from game instance"));
 }
 
-void UIts_GameInstance::SetPuzzleState(const FText& PuzzleName, bool bIsCompleted, const FTransform& PuzzleTransform)
+void UIts_GameInstance::SetPuzzleState(const FText& PuzzleName, const FPuzzleState& State,
+                                       const FTransform& PuzzleTransform)
 {
-	PuzzleStates.Add(PuzzleName.ToString(), bIsCompleted);
+	PuzzleStates.Add(PuzzleName.ToString(), State);
 	PuzzleTransforms.Add(PuzzleName.ToString(), PuzzleTransform);
 
 	if (UIts_SaveGame* SaveGameInstance = Cast<UIts_SaveGame>(
@@ -63,14 +64,17 @@ void UIts_GameInstance::SetPuzzleState(const FText& PuzzleName, bool bIsComplete
 	}
 }
 
-bool UIts_GameInstance::GetPuzzleState(const FText& PuzzleName, FTransform& PuzzleTransform) const
+FPuzzleState UIts_GameInstance::GetPuzzleState(const FText& PuzzleName, FTransform& PuzzleTransform) const
 {
-	const bool* bIsCompleted = PuzzleStates.Find(PuzzleName.ToString());
+	const FPuzzleState* FoundState = PuzzleStates.Find(PuzzleName.ToString());
 	const FTransform* SavedTransform = PuzzleTransforms.Find(PuzzleName.ToString());
 
-	if (bIsCompleted)
+	FPuzzleState ResultState;
+	if (FoundState)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Puzzle %s state found."), *PuzzleName.ToString());
+		ResultState = *FoundState;
+
 		if (SavedTransform)
 		{
 			PuzzleTransform = *SavedTransform;
@@ -79,10 +83,13 @@ bool UIts_GameInstance::GetPuzzleState(const FText& PuzzleName, FTransform& Puzz
 		}
 		else
 			UE_LOG(LogTemp, Warning, TEXT("No saved transform for Puzzle %s. Using default."), *PuzzleName.ToString());
-
-		UE_LOG(LogTemp, Warning, TEXT("Puzzle state found and loaded from game instance"));
-		return *bIsCompleted;
 	}
 	else
-		return false;
+	{
+		ResultState.bIsPuzzleSolved = false;
+		ResultState.HasPlayedSound = false;
+		UE_LOG(LogTemp, Warning, TEXT("Puzzle state found and loaded from game instance"));
+	}
+	
+	return ResultState;
 }

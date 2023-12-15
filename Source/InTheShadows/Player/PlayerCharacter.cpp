@@ -65,6 +65,22 @@ void APlayerCharacter::Tick(float DeltaTime)
 }
 
 // Interaction
+
+void APlayerCharacter::MenuActions()
+{
+	bIsMenuOpen = !bIsMenuOpen;
+	if (bIsMenuOpen)
+	{
+		HUD->DisplayMenu();
+		UE_LOG(LogTemp, Warning, TEXT("Opening Menu"));
+	}
+	else
+	{
+		HUD->HideMenu();
+		UE_LOG(LogTemp, Warning, TEXT("Closing Menu"));
+	}
+}
+
 void APlayerCharacter::PerformInteractionCheck()
 {
 	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
@@ -245,5 +261,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		                                   &APlayerCharacter::BeginInteract);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this,
 		                                   &APlayerCharacter::EndInteract);
+
+		// Open Menu
+		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MenuActions);
 	}
 }

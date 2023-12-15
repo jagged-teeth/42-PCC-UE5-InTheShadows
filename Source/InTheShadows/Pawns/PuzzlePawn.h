@@ -18,6 +18,18 @@ class UStaticMeshComponent;
 class UTimelineComponent;
 class APlayerHUD;
 
+USTRUCT(BlueprintType)
+struct FPuzzleState
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsPuzzleSolved = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool HasPlayedSound = false;
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLongPressCompleted);
 
 UCLASS(Blueprintable)
@@ -87,12 +99,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Puzzle | State", META = (ToolTip= "Positive values only"))
 	FRotator TargetRotation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle | State")
-	bool bIsPuzzleSolved = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle | State")
-	bool bHasPuzzlePlayedSound = false;
-
 	// Interface Override
 	virtual void BeginFocus() override;
 	virtual void BeginInteract() override;
@@ -112,11 +118,25 @@ protected:
 	void StopRoll() { bIsRollActive = false; }
 
 	// Solve check
+	UFUNCTION(BlueprintImplementableEvent, Category = "Puzzle")
+	void PlayPuzzleSolvedSound();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Puzzle")
+	void DestroyWall();
+
+	UFUNCTION(BlueprintCallable, Category = "Puzzle")
+	void PlaySoundAndDestroyWall();
+
+	UFUNCTION(BlueprintCallable, Category = "Puzzle")
+	bool GetPuzzleState() const { return CurrentPuzzleState.bIsPuzzleSolved; };
+
 	bool IsRotationValid(const FRotator& TargetRotation, float Tolerance) const;
-	void SetPuzzleSolved(bool Solved);
+	void SetPuzzleSolved();
+
 	FTransform PuzzleTransform;
 
 private:
+	FPuzzleState CurrentPuzzleState;
 	FTimerHandle InteractTimerHandle;
 
 	bool bIsFloating = false;

@@ -67,15 +67,18 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
 	UInputAction* InteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
+	UInputAction* MenuAction;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
 	TScriptInterface<IInteractionInterface> TargetInteractable;
 
+	bool bIsMenuOpen = false;
 	float InteractionCheckFrequency;
 	float InteractionCheckDistance;
 	FTimerHandle TimerHandle_Interaction;
 	FInteractionData InteractionData;
-
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 
@@ -85,6 +88,7 @@ protected:
 	void BeginInteract();
 	void EndInteract();
 	void Interact();
+	void MenuActions();
 
 	void ControlPuzzle(APuzzlePawn* PuzzlePawn);
 	// void StopControllingPuzzle();

@@ -28,6 +28,9 @@ protected:
 	UTextBlock* ActionText;
 
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "InteractionWidget | Interactable Data")
+	UTextBlock* NameText;
+
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "InteractionWidget | Interactable Data")
 	UProgressBar* InteractionProgressBar;
 
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "InteractionWidget | Interactable Data")
