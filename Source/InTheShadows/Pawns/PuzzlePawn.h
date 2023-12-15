@@ -18,6 +18,8 @@ class UStaticMeshComponent;
 class UTimelineComponent;
 class APlayerHUD;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLongPressCompleted);
+
 UCLASS(Blueprintable)
 class INTHESHADOWS_API APuzzlePawn : public APawn, public IInteractionInterface
 {
@@ -45,6 +47,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Puzzle | Interactable")
 	FInteractableData InstanceInteractableData;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCameraComponent* PuzzleCamera;
+
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UStaticMeshComponent* StaticMesh;
 
@@ -54,6 +59,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UTimelineComponent* FloatingAnimation;
 
+	UPROPERTY(BlueprintReadWrite)
+	APlayerCharacter* PlayerRef;
 	// Input
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Puzzle | Input")
 	UInputAction* LookAction;
@@ -80,8 +87,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Puzzle | State", META = (ToolTip= "Positive values only"))
 	FRotator TargetRotation;
 
-	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle | State")
 	bool bIsPuzzleSolved = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle | State")
+	bool bHasPuzzlePlayedSound = false;
 
 	// Interface Override
 	virtual void BeginFocus() override;
@@ -92,6 +102,9 @@ protected:
 	// Input to Possess
 	void StartPossessing();
 	void OnLongPressComplete();
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Puzzle | Input")
+	bool bIsUnpossessing = false;
 
 	// Movement Input
 	void Look(const FInputActionValue& Value);
@@ -104,12 +117,6 @@ protected:
 	FTransform PuzzleTransform;
 
 private:
-	UPROPERTY(EditAnywhere)
-	UCameraComponent* PuzzleCamera;
-
-	UPROPERTY()
-	APlayerCharacter* PlayerRef;
-
 	FTimerHandle InteractTimerHandle;
 
 	bool bIsFloating = false;

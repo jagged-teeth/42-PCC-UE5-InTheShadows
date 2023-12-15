@@ -120,7 +120,10 @@ void APuzzlePawn::HandleFloatingTimelineProgress(float Value)
 void APuzzlePawn::BeginFocus()
 {
 	if (StaticMesh)
+	{
 		StaticMesh->SetRenderCustomDepth(true);
+		bIsRollActive = false;
+	}
 }
 
 void APuzzlePawn::EndFocus()
@@ -160,6 +163,7 @@ void APuzzlePawn::OnLongPressComplete()
 	{
 		if (PlayerRef)
 		{
+			bIsUnpossessing = true;
 			PC->UnPossess();
 			PC->Possess(PlayerRef);
 		}

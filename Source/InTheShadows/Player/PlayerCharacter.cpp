@@ -220,8 +220,8 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	const FVector2D LookAxisValue = Value.Get<FVector2D>();
 	if (GetController())
 	{
-		AddControllerYawInput(LookAxisValue.X);
-		AddControllerPitchInput(LookAxisValue.Y);
+		AddControllerYawInput(LookAxisValue.X * 0.4f);
+		AddControllerPitchInput(LookAxisValue.Y * 0.4f);
 	}
 }
 
