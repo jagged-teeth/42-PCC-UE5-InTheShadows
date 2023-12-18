@@ -8,7 +8,7 @@
 
 class APlayerCharacter;
 
-UCLASS()
+UCLASS(Blueprintable)
 class INTHESHADOWS_API UMainMenu : public UUserWidget
 {
 	GENERATED_BODY()

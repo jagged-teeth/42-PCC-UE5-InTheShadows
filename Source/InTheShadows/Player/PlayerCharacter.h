@@ -56,19 +56,19 @@ protected:
 	virtual void BeginPlay() override;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character | Input")
 	UInputMappingContext* BaseMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character | Input")
 	UInputAction* MoveAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character | Input")
 	UInputAction* LookAction;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character | Input")
 	UInputAction* InteractAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character | Input")
 	UInputAction* MenuAction;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
