@@ -73,6 +73,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	APlayerCharacter* PlayerRef;
+	
 	// Input
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Puzzle | Input")
 	UInputAction* LookAction;
@@ -99,6 +100,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Puzzle | State", META = (ToolTip= "Positive values only"))
 	FRotator TargetRotation;
 
+	UPROPERTY(EditAnywhere, Category = "Puzzle | State")
+	bool bSavePuzzleState = true;
+	
 	// Interface Override
 	virtual void BeginFocus() override;
 	virtual void BeginInteract() override;
@@ -110,7 +114,7 @@ protected:
 	void OnLongPressComplete();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Puzzle | Input")
-	bool bIsUnpossessing = false;
+	bool bIsUnposs = false;
 
 	// Movement Input
 	void Look(const FInputActionValue& Value);
@@ -133,14 +137,23 @@ protected:
 	bool IsRotationValid(const FRotator& TargetRotation, float Tolerance) const;
 	void SetPuzzleSolved();
 
+	UPROPERTY()
 	FTransform PuzzleTransform;
 
 private:
+	UPROPERTY()
 	FPuzzleState CurrentPuzzleState;
+	
 	FTimerHandle InteractTimerHandle;
 
 	bool bIsFloating = false;
 	bool bIsRollActive;
+
+	UPROPERTY(EditAnywhere, Category = "Puzzle | Input")
+	bool bEnableRoll = true;
+
+	UPROPERTY(EditAnywhere, Category = "Puzzle | Input")
+	bool bEnableLook = true;
 
 	float StartLocation;
 	float LongPressDuration = 1.0f;

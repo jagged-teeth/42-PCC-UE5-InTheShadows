@@ -26,10 +26,7 @@ public:
 
 	bool bIsMenuDisplayed;
 
-	UFUNCTION(BlueprintCallable)
 	void DisplayMenu();
-
-	UFUNCTION(BlueprintCallable)
 	void HideMenu();
 
 	void ShowInteractionWidget() const;

@@ -45,18 +45,25 @@ void APuzzlePawn::BeginPlay()
 	// Loading puzzle state
 	if (UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance()))
 	{
-		PuzzleTransform = StaticMesh->GetComponentTransform();
-		UE_LOG(LogTemp, Warning, TEXT("Puzzle transform before loading: %s"), *PuzzleTransform.ToString());
-		
-		CurrentPuzzleState = GI->GetPuzzleState(InteractableData.Name, PuzzleTransform);
-		if (CurrentPuzzleState.bIsPuzzleSolved)
-			StaticMesh->SetWorldTransform(PuzzleTransform);
-		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, Puzzle Sound: %d with name %s and transform %s loaded from constructor"),
-		       CurrentPuzzleState.bIsPuzzleSolved, CurrentPuzzleState.HasPlayedSound, *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
+		if (StaticMesh)
+		{
+			PuzzleTransform = StaticMesh->GetComponentTransform();
+			UE_LOG(LogTemp, Warning, TEXT("Puzzle transform before loading: %s"), *PuzzleTransform.ToString());
+
+			CurrentPuzzleState = GI->GetPuzzleState(InteractableData.Name, PuzzleTransform);
+			if (CurrentPuzzleState.bIsPuzzleSolved)
+				StaticMesh->SetWorldTransform(PuzzleTransform);
+			UE_LOG(LogTemp, Warning,
+			       TEXT("Puzzle State: %d, Puzzle Sound: %d with name %s and transform %s loaded from constructor"),
+			       CurrentPuzzleState.bIsPuzzleSolved, CurrentPuzzleState.HasPlayedSound,
+			       *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
+		}
+		else
+			UE_LOG(LogTemp, Warning, TEXT("StaticMesh is nullptr"));
 	}
 
 	// Floating timeline
-	if (FloatingCurve && bIsFloating)
+	if (FloatingCurve && StaticMesh && bIsFloating)
 	{
 		StartLocation = GetActorLocation().Z;
 
@@ -96,13 +103,16 @@ void APuzzlePawn::PlaySoundAndDestroyWall()
 // PUZZLE STATE
 void APuzzlePawn::SetPuzzleSolved()
 {
-	UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance());
-	if (GI)
+	if (UIts_GameInstance* GI = Cast<UIts_GameInstance>(GetGameInstance()))
 	{
-		PuzzleTransform = StaticMesh->GetComponentTransform();
-		GI->SetPuzzleState(InteractableData.Name, CurrentPuzzleState, PuzzleTransform);
-		UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, Puzzle Sound: %d, with name %s and transform %s saved"), CurrentPuzzleState.bIsPuzzleSolved, CurrentPuzzleState.HasPlayedSound,
-		       *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
+		if (StaticMesh && bSavePuzzleState)
+		{
+			PuzzleTransform = StaticMesh->GetComponentTransform();
+			GI->SetPuzzleState(InteractableData.Name, CurrentPuzzleState, PuzzleTransform);
+			UE_LOG(LogTemp, Warning, TEXT("Puzzle State: %d, Puzzle Sound: %d, with name %s and transform %s saved"),
+			       CurrentPuzzleState.bIsPuzzleSolved, CurrentPuzzleState.HasPlayedSound,
+			       *InteractableData.Name.ToString(), *PuzzleTransform.ToString());
+		}
 	}
 }
 
@@ -111,11 +121,14 @@ bool APuzzlePawn::IsRotationValid(const FRotator& TargetRot, float Tolerance) co
 {
 	FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
 
-	CurrentRotation.Roll = FMath::Abs(CurrentRotation.Roll);
-	CurrentRotation.Yaw = FMath::Abs(CurrentRotation.Yaw);
-	CurrentRotation.Pitch = FMath::Abs(CurrentRotation.Pitch);
+	CurrentRotation.Normalize();
+	FRotator NormalizedTargetRot = TargetRot;
+	NormalizedTargetRot.Normalize();
+	// CurrentRotation.Roll = FMath::Abs(CurrentRotation.Roll);
+	// CurrentRotation.Yaw = FMath::Abs(CurrentRotation.Yaw);
+	// CurrentRotation.Pitch = FMath::Abs(CurrentRotation.Pitch);
 
-	return CurrentRotation.Equals(TargetRotation, Tolerance);
+	return CurrentRotation.Equals(NormalizedTargetRot, Tolerance);
 }
 
 // TIMELINE EVENTS
@@ -152,9 +165,12 @@ void APuzzlePawn::BeginInteract()
 void APuzzlePawn::StartPossessing()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Calling StartInteract override on Puzzle Pawn"));
-	PlayerRef->HUD->ShowInteractionWidget();
-	GetWorld()->GetTimerManager().SetTimer(InteractTimerHandle, this, &APuzzlePawn::OnLongPressComplete,
-	                                       LongPressDuration, false);
+	if (PlayerRef)
+	{
+		PlayerRef->HUD->ShowInteractionWidget();
+		GetWorld()->GetTimerManager().SetTimer(InteractTimerHandle, this, &APuzzlePawn::OnLongPressComplete,
+		                                       LongPressDuration, false);
+	}
 }
 
 void APuzzlePawn::EndInteract()
@@ -173,7 +189,7 @@ void APuzzlePawn::OnLongPressComplete()
 	{
 		if (PlayerRef)
 		{
-			bIsUnpossessing = true;
+			bIsUnposs = true;
 			PC->UnPossess();
 			PC->Possess(PlayerRef);
 		}
@@ -235,11 +251,15 @@ void APuzzlePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		// Look
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Look);
+		if (bEnableLook)
+			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Look);
 
 		// Roll
-		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Roll);
-		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Completed, this, &APuzzlePawn::StopRoll);
+		if (bEnableRoll)
+		{
+			EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &APuzzlePawn::Roll);
+			EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Completed, this, &APuzzlePawn::StopRoll);
+		}
 
 		// Interact
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this,
