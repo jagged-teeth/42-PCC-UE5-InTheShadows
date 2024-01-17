@@ -62,3 +62,6 @@ Thumbs.db
 ehthumbs.db
 # JetBrains Rider
 .idea/
+# Large built Uassets
+/Content/Levels/MAP_MainMenu_BuiltData.uasset
+/Content/Levels/MAP_LevelDesign_BuiltData.uasset
