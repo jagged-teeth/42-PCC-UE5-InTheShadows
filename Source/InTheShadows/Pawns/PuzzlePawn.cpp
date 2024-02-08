@@ -214,12 +214,18 @@ void APuzzlePawn::Look(const FInputActionValue& Value)
 			const float DeltaYaw = LookAxisValue.X;
 			const float DeltaPitch = LookAxisValue.Y;
 
-			FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
+			// Convert current rotation to a quaternion
+			FQuat CurrentQuat = StaticMesh->GetRelativeRotation().Quaternion();
 
-			CurrentRotation.Yaw += DeltaYaw;
-			CurrentRotation.Pitch += DeltaPitch;
+			// Create delta rotation quaternions for yaw (Z axis) and pitch (Y axis)
+			FQuat DeltaQuatYaw(FRotator(0.f, 0.f, DeltaYaw));
+			FQuat DeltaQuatPitch(FRotator(DeltaPitch, 0.f, 0.f));
 
-			StaticMesh->SetRelativeRotation(CurrentRotation);
+			// Apply yaw and pitch rotations
+			FQuat NewQuat = DeltaQuatPitch * DeltaQuatYaw * CurrentQuat;
+
+			// Set the new rotation
+			StaticMesh->SetRelativeRotation(NewQuat.Rotator());
 		}
 	}
 }
@@ -234,11 +240,17 @@ void APuzzlePawn::Roll(const FInputActionValue& Value)
 		{
 			const float DeltaRoll = RollAxisValue;
 
-			FRotator CurrentRotation = StaticMesh->GetRelativeRotation();
+			// Convert current rotation to a quaternion
+			FQuat CurrentQuat = StaticMesh->GetRelativeRotation().Quaternion();
 
-			CurrentRotation.Roll += DeltaRoll;
+			// Create delta rotation quaternion for roll (X axis)
+			FQuat DeltaQuatRoll(FRotator(0.f, DeltaRoll, 0.f));
 
-			StaticMesh->SetRelativeRotation(CurrentRotation);
+			// Apply roll rotation
+			FQuat NewQuat = DeltaQuatRoll * CurrentQuat;
+
+			// Set the new rotation
+			StaticMesh->SetRelativeRotation(NewQuat.Rotator());
 		}
 	}
 }
