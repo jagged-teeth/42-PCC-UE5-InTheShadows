@@ -137,6 +137,12 @@ protected:
 	bool IsRotationValid(const FRotator& TargetRotation, float Tolerance) const;
 	void SetPuzzleSolved();
 
+	UFUNCTION(BlueprintCallable, Category = "Puzzle")
+	FRotator GetPuzzleRotation() const { return StaticMesh->GetComponentRotation(); };
+
+	UFUNCTION(BlueprintCallable, Category = "Puzzle")
+	FRotator GetTargetRotation() const { return TargetRotation; };
+
 	UPROPERTY()
 	FTransform PuzzleTransform;
 
